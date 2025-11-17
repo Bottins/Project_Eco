@@ -55,10 +55,10 @@ class FurnitureDatasetPreparer:
     def __init__(self, data_dir: str = "dataset_mobili"):
         self.data_dir = Path(data_dir)
         self.classes = [
-            'bed', 'couch', 'chair', 'dining_table', 'desk', 
+            'bed', 'couch', 'chair', 'dining_table', 'desk',
             'wardrobe', 'bookshelf', 'tv_stand', 'coffee_table',
             'mattress', 'refrigerator', 'washing_machine', 'dishwasher'
-        ]
+        ]  # Classi complete per il riconoscimento ingombranti
         
     def prepare_yolo_dataset(self, images_dir: str, labels_dir: str):
         """
@@ -164,7 +164,7 @@ class QualityDataset(Dataset):
 class FurnitureVisualizerGUI:
     """GUI per visualizzare le detection in tempo reale con indicatore multi-camion"""
     
-    def __init__(self, capacita_camion_m3: float = 4.0, detector_system=None):
+    def __init__(self, capacita_camion_m3: float = 18.0, detector_system=None):
         self.capacita_camion = capacita_camion_m3
         self.detections_list = []
         self.current_index = 0
@@ -891,44 +891,69 @@ class FurnitureDetectorSystem:
         self.detector_path = self.models_dir / "furniture_detector.pt"
         self.quality_path = self.models_dir / "quality_classifier.pth"
         
-        # Dizionario dimensioni (in cm)
+        # Dizionario dimensioni (in cm) - VALORI REALISTICI PER INGOMBRANTI
         self.dimensioni_standard = {
             'bed': {
-                'singolo': {'lunghezza': 200, 'larghezza': 90, 'altezza': 50},
-                'matrimoniale': {'lunghezza': 200, 'larghezza': 160, 'altezza': 50},
-                'king': {'lunghezza': 200, 'larghezza': 180, 'altezza': 50}
+                'singolo': {'lunghezza': 200, 'larghezza': 90, 'altezza': 60},  # Con rete/testiera
+                'matrimoniale': {'lunghezza': 200, 'larghezza': 160, 'altezza': 65},  # Con rete/testiera
+                'king': {'lunghezza': 210, 'larghezza': 180, 'altezza': 70}  # Con rete/testiera
             },
             'couch': {
-                'piccolo': {'lunghezza': 150, 'profondita': 80, 'altezza': 85},
-                'medio': {'lunghezza': 180, 'profondita': 85, 'altezza': 88},
-                'grande': {'lunghezza': 220, 'profondita': 90, 'altezza': 90}
+                'piccolo': {'lunghezza': 150, 'profondita': 85, 'altezza': 90},  # Divano 2 posti
+                'medio': {'lunghezza': 200, 'profondita': 95, 'altezza': 95},  # Divano 3 posti
+                'grande': {'lunghezza': 280, 'profondita': 160, 'altezza': 95}  # Divano angolare
             },
             'chair': {
-                'standard': {'lunghezza': 45, 'profondita': 50, 'altezza': 90},
-                'poltrona': {'lunghezza': 70, 'profondita': 70, 'altezza': 100}
+                'standard': {'lunghezza': 45, 'profondita': 50, 'altezza': 95},
+                'poltrona': {'lunghezza': 85, 'profondita': 90, 'altezza': 105}  # Poltrona imbottita
             },
             'dining_table': {
-                'piccolo': {'lunghezza': 120, 'larghezza': 80, 'altezza': 75},
-                'medio': {'lunghezza': 150, 'larghezza': 90, 'altezza': 75},
-                'grande': {'lunghezza': 200, 'larghezza': 100, 'altezza': 75}
+                'piccolo': {'lunghezza': 120, 'larghezza': 80, 'altezza': 75},  # 4 posti
+                'medio': {'lunghezza': 160, 'larghezza': 90, 'altezza': 75},  # 6 posti
+                'grande': {'lunghezza': 220, 'larghezza': 100, 'altezza': 75}  # 8 posti
             },
             'desk': {
                 'standard': {'lunghezza': 120, 'larghezza': 60, 'altezza': 75},
-                'grande': {'lunghezza': 160, 'larghezza': 80, 'altezza': 75}
+                'grande': {'lunghezza': 160, 'larghezza': 80, 'altezza': 75},
+                'angolare': {'lunghezza': 140, 'larghezza': 140, 'altezza': 75}  # Scrivania ad L
             },
             'wardrobe': {
-                'piccolo': {'lunghezza': 100, 'profondita': 60, 'altezza': 200},
-                'medio': {'lunghezza': 150, 'profondita': 60, 'altezza': 220},
-                'grande': {'lunghezza': 200, 'profondita': 60, 'altezza': 240}
+                'piccolo': {'lunghezza': 100, 'profondita': 60, 'altezza': 200},  # 1 anta
+                'medio': {'lunghezza': 135, 'profondita': 60, 'altezza': 210},  # 2 ante
+                'grande': {'lunghezza': 180, 'profondita': 65, 'altezza': 240}  # 3 ante
             },
             'bookshelf': {
-                'standard': {'lunghezza': 80, 'profondita': 30, 'altezza': 180}
+                'piccolo': {'lunghezza': 60, 'profondita': 25, 'altezza': 120},
+                'standard': {'lunghezza': 80, 'profondita': 30, 'altezza': 180},
+                'grande': {'lunghezza': 120, 'profondita': 35, 'altezza': 200}
+            },
+            'tv_stand': {
+                'piccolo': {'lunghezza': 100, 'profondita': 40, 'altezza': 50},
+                'standard': {'lunghezza': 140, 'profondita': 45, 'altezza': 55},
+                'grande': {'lunghezza': 180, 'profondita': 50, 'altezza': 60}
+            },
+            'coffee_table': {
+                'piccolo': {'lunghezza': 80, 'larghezza': 50, 'altezza': 40},
+                'standard': {'lunghezza': 110, 'larghezza': 60, 'altezza': 45},
+                'grande': {'lunghezza': 130, 'larghezza': 70, 'altezza': 45}
+            },
+            'mattress': {
+                'singolo': {'lunghezza': 190, 'larghezza': 80, 'altezza': 20},
+                'matrimoniale': {'lunghezza': 190, 'larghezza': 160, 'altezza': 25},
+                'king': {'lunghezza': 200, 'larghezza': 180, 'altezza': 30}
             },
             'refrigerator': {
-                'standard': {'lunghezza': 60, 'profondita': 65, 'altezza': 170}
+                'piccolo': {'lunghezza': 55, 'profondita': 60, 'altezza': 140},  # Monoporta piccolo
+                'standard': {'lunghezza': 60, 'profondita': 65, 'altezza': 170},  # Monoporta
+                'grande': {'lunghezza': 70, 'profondita': 70, 'altezza': 185}  # Doppia porta
             },
             'washing_machine': {
-                'standard': {'lunghezza': 60, 'profondita': 60, 'altezza': 85}
+                'standard': {'lunghezza': 60, 'profondita': 60, 'altezza': 85},
+                'slim': {'lunghezza': 60, 'profondita': 45, 'altezza': 85}  # Carica frontale slim
+            },
+            'dishwasher': {
+                'standard': {'lunghezza': 60, 'profondita': 60, 'altezza': 85},
+                'slim': {'lunghezza': 45, 'profondita': 60, 'altezza': 85}
             }
         }
         
@@ -1185,20 +1210,85 @@ class FurnitureDetectorSystem:
         # Determina sottotipo basandosi sulle dimensioni del bbox
         sottotipi = self.dimensioni_standard[classe]
         
-        # Logica semplificata per determinare il sottotipo
+        # Logica semplificata per determinare il sottotipo basata su dimensioni bbox
         if len(sottotipi) == 1:
             sottotipo = list(sottotipi.keys())[0]
         else:
-            # Usa il rapporto larghezza/altezza per stimare
+            # Usa le dimensioni del bbox per stimare il sottotipo
             if classe == 'bed':
-                sottotipo = 'matrimoniale' if bbox_width > 300 else 'singolo'
+                if bbox_width > 350:
+                    sottotipo = 'king'
+                elif bbox_width > 250:
+                    sottotipo = 'matrimoniale'
+                else:
+                    sottotipo = 'singolo'
             elif classe == 'couch':
-                if bbox_width < 250:
-                    sottotipo = 'piccolo'
-                elif bbox_width < 350:
+                if bbox_width > 450:
+                    sottotipo = 'grande'  # Angolare
+                elif bbox_width > 300:
+                    sottotipo = 'medio'  # 3 posti
+                else:
+                    sottotipo = 'piccolo'  # 2 posti
+            elif classe == 'dining_table':
+                if bbox_width > 350:
+                    sottotipo = 'grande'
+                elif bbox_width > 250:
                     sottotipo = 'medio'
                 else:
+                    sottotipo = 'piccolo'
+            elif classe == 'desk':
+                if bbox_width > 280:
+                    sottotipo = 'angolare'
+                elif bbox_width > 250:
                     sottotipo = 'grande'
+                else:
+                    sottotipo = 'standard'
+            elif classe == 'wardrobe':
+                if bbox_width > 300:
+                    sottotipo = 'grande'
+                elif bbox_width > 200:
+                    sottotipo = 'medio'
+                else:
+                    sottotipo = 'piccolo'
+            elif classe == 'bookshelf':
+                if bbox_width > 180:
+                    sottotipo = 'grande'
+                elif bbox_width > 120:
+                    sottotipo = 'standard'
+                else:
+                    sottotipo = 'piccolo'
+            elif classe == 'tv_stand':
+                if bbox_width > 280:
+                    sottotipo = 'grande'
+                elif bbox_width > 200:
+                    sottotipo = 'standard'
+                else:
+                    sottotipo = 'piccolo'
+            elif classe == 'coffee_table':
+                if bbox_width > 200:
+                    sottotipo = 'grande'
+                elif bbox_width > 150:
+                    sottotipo = 'standard'
+                else:
+                    sottotipo = 'piccolo'
+            elif classe == 'mattress':
+                if bbox_width > 350:
+                    sottotipo = 'king'
+                elif bbox_width > 250:
+                    sottotipo = 'matrimoniale'
+                else:
+                    sottotipo = 'singolo'
+            elif classe == 'refrigerator':
+                if bbox_width > 120:
+                    sottotipo = 'grande'
+                elif bbox_width > 100:
+                    sottotipo = 'standard'
+                else:
+                    sottotipo = 'piccolo'
+            elif classe in ['washing_machine', 'dishwasher']:
+                sottotipo = 'slim' if bbox_width < 100 else 'standard'
+            elif classe == 'chair':
+                sottotipo = 'poltrona' if bbox_width > 120 else 'standard'
             else:
                 # Default al primo sottotipo
                 sottotipo = list(sottotipi.keys())[0]
@@ -1484,7 +1574,7 @@ def main():
                 show_gui = input("\nMostrare visualizzatore grafico? (s/n) [default: s]: ")
                 if show_gui.lower() != 'n':
                     print("\n[INFO] Apertura visualizzatore...")
-                    gui = FurnitureVisualizerGUI(capacita_camion_m3=4.0, detector_system=system)
+                    gui = FurnitureVisualizerGUI(capacita_camion_m3=18.0, detector_system=system)
                     gui.show(all_detections)
             
         elif choice == '2':
