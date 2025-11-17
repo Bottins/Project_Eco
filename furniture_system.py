@@ -28,6 +28,7 @@ from PIL import Image, ImageTk
 from ultralytics import YOLO
 from sklearn.model_selection import train_test_split
 import tkinter as tk
+from tkinter import messagebox
 from tkinter import ttk
 import warnings
 warnings.filterwarnings('ignore')
@@ -163,10 +164,11 @@ class QualityDataset(Dataset):
 class FurnitureVisualizerGUI:
     """GUI per visualizzare le detection in tempo reale con indicatore multi-camion"""
     
-    def __init__(self, capacita_camion_m3: float = 4.0):
+    def __init__(self, capacita_camion_m3: float = 4.0, detector_system=None):
         self.capacita_camion = capacita_camion_m3
         self.detections_list = []
         self.current_index = 0
+        self.detector_system = detector_system
         
         # Setup finestra principale
         self.root = tk.Tk()
@@ -263,16 +265,24 @@ class FurnitureVisualizerGUI:
                                      font=("Arial", 12, "bold"), bg='#2b2b2b', fg='#ffffff')
         self.counter_label.pack(side=tk.LEFT, padx=20)
         
-        self.next_btn = tk.Button(controls_frame, text="Successivo", 
+        self.next_btn = tk.Button(controls_frame, text="Successivo",
                                  command=self.next_detection, **btn_style)
         self.next_btn.pack(side=tk.LEFT, padx=5)
+
+        # Pulsante Verifica Ritiro
+        verify_btn_style = {'font': ("Arial", 11, "bold"), 'bg': '#ff8800', 'fg': 'white',
+                           'activebackground': '#cc6600', 'relief': tk.FLAT, 'padx': 20, 'pady': 8}
+        self.verify_btn = tk.Button(controls_frame, text="📸 Verifica Ritiro",
+                                    command=self.verifica_ritiro, **verify_btn_style)
+        self.verify_btn.pack(side=tk.LEFT, padx=20)
+
         # Abilita frecce tastiera
         self.root.bind("<Left>", lambda e: self.prev_detection())
         self.root.bind("<Right>", lambda e: self.next_detection())
 
-        self.close_btn = tk.Button(controls_frame, text="Chiudi", 
+        self.close_btn = tk.Button(controls_frame, text="Chiudi",
                                    command=self.close, bg='#cc0000', fg='white',
-                                   activebackground='#a30000', relief=tk.FLAT, 
+                                   activebackground='#a30000', relief=tk.FLAT,
                                    font=("Arial", 11, "bold"), padx=20, pady=8)
         self.close_btn.pack(side=tk.RIGHT, padx=5)
     
@@ -560,7 +570,303 @@ class FurnitureVisualizerGUI:
         """Chiude la finestra"""
         self.root.quit()
         self.root.destroy()
-    
+
+    def verifica_ritiro(self):
+        """Apre dialog per caricare foto di verifica e confronta con originale"""
+        if not self.detector_system:
+            messagebox.showerror("Errore", "Sistema di detection non disponibile")
+            return
+
+        if not self.detections_list or self.current_index >= len(self.detections_list):
+            messagebox.showerror("Errore", "Nessun oggetto selezionato")
+            return
+
+        # Apri dialog per selezionare immagine
+        from tkinter import filedialog
+        file_path = filedialog.askopenfilename(
+            title="Seleziona foto di verifica ritiro",
+            filetypes=[
+                ("Immagini", "*.jpg *.jpeg *.png *.bmp"),
+                ("Tutti i file", "*.*")
+            ]
+        )
+
+        if not file_path:
+            return  # Utente ha annullato
+
+        # Mostra dialog di caricamento
+        progress_window = tk.Toplevel(self.root)
+        progress_window.title("Analisi in corso...")
+        progress_window.geometry("300x100")
+        progress_window.transient(self.root)
+        progress_window.grab_set()
+
+        # Centra la finestra
+        progress_window.update_idletasks()
+        x = (progress_window.winfo_screenwidth() // 2) - (progress_window.winfo_width() // 2)
+        y = (progress_window.winfo_screenheight() // 2) - (progress_window.winfo_height() // 2)
+        progress_window.geometry(f"+{x}+{y}")
+
+        label = tk.Label(progress_window, text="Analisi della foto in corso...\nAttendere prego.",
+                        font=("Arial", 11), pady=20)
+        label.pack()
+
+        # Esegui detection in modo asincrono
+        def esegui_detection():
+            try:
+                # Rileva oggetti nella nuova foto
+                nuove_detection = self.detector_system.rileva_mobili(file_path)
+
+                # Ottieni detection originale per l'immagine corrente
+                det_corrente = self.detections_list[self.current_index]
+                img_originale = det_corrente['immagine']
+
+                # Rileva oggetti nell'immagine originale (tutte le detection)
+                detection_originali = [d for d in self.detections_list if d['immagine'] == img_originale]
+
+                # Confronta
+                risultato = self.confronta_oggetti(detection_originali, nuove_detection)
+
+                # Chiudi progress
+                progress_window.destroy()
+
+                # Mostra risultati
+                self.mostra_risultati_confronto(risultato, file_path, img_originale)
+
+            except Exception as e:
+                progress_window.destroy()
+                messagebox.showerror("Errore", f"Errore durante l'analisi:\n{str(e)}")
+
+        # Esegui dopo 100ms per permettere alla finestra di mostrarsi
+        self.root.after(100, esegui_detection)
+
+    def confronta_oggetti(self, originali: List[Dict], nuovi: List[Dict]) -> Dict:
+        """Confronta oggetti rilevati e identifica quelli aggiunti"""
+
+        # Conta oggetti per classe nell'originale
+        classi_originali = {}
+        for det in originali:
+            classe = det['classe']
+            classi_originali[classe] = classi_originali.get(classe, 0) + 1
+
+        # Conta oggetti per classe nella nuova foto
+        classi_nuove = {}
+        for det in nuovi:
+            classe = det['classe']
+            classi_nuove[classe] = classi_nuove.get(classe, 0) + 1
+
+        # Identifica oggetti aggiunti
+        oggetti_aggiunti = []
+        volume_aggiunto = 0.0
+
+        for classe, count_nuovo in classi_nuove.items():
+            count_originale = classi_originali.get(classe, 0)
+            if count_nuovo > count_originale:
+                diff = count_nuovo - count_originale
+                # Trova gli oggetti di questa classe nella nuova detection
+                oggetti_classe = [d for d in nuovi if d['classe'] == classe]
+                # Prendi gli ultimi 'diff' oggetti (quelli aggiunti)
+                for obj in oggetti_classe[-diff:]:
+                    oggetti_aggiunti.append(obj)
+                    volume_aggiunto += obj['volume_stimato'].get('volume_m3', 0) or 0
+
+        # Identifica oggetti rimossi
+        oggetti_rimossi = []
+        for classe, count_originale in classi_originali.items():
+            count_nuovo = classi_nuove.get(classe, 0)
+            if count_nuovo < count_originale:
+                diff = count_originale - count_nuovo
+                oggetti_rimossi.append({'classe': classe, 'quantita': diff})
+
+        return {
+            'totale_originali': len(originali),
+            'totale_nuovi': len(nuovi),
+            'classi_originali': classi_originali,
+            'classi_nuove': classi_nuove,
+            'oggetti_aggiunti': oggetti_aggiunti,
+            'oggetti_rimossi': oggetti_rimossi,
+            'volume_aggiunto': volume_aggiunto,
+            'nuove_detection': nuovi
+        }
+
+    def mostra_risultati_confronto(self, risultato: Dict, img_nuova: str, img_originale: str):
+        """Mostra finestra con i risultati del confronto"""
+
+        # Crea finestra di risultati
+        result_window = tk.Toplevel(self.root)
+        result_window.title("Risultati Verifica Ritiro")
+        result_window.geometry("900x700")
+        result_window.configure(bg='#2b2b2b')
+
+        # Centra la finestra
+        result_window.update_idletasks()
+        x = (result_window.winfo_screenwidth() // 2) - (result_window.winfo_width() // 2)
+        y = (result_window.winfo_screenheight() // 2) - (result_window.winfo_height() // 2)
+        result_window.geometry(f"+{x}+{y}")
+
+        # Frame principale
+        main_frame = tk.Frame(result_window, bg='#2b2b2b')
+        main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+        # Titolo
+        num_aggiunti = len(risultato['oggetti_aggiunti'])
+        if num_aggiunti > 0:
+            title_text = f"⚠️ ATTENZIONE: {num_aggiunti} OGGETTO/I AGGIUNTO/I!"
+            title_color = '#ff3333'
+        else:
+            title_text = "✓ NESSUN OGGETTO AGGIUNTO"
+            title_color = '#00ff00'
+
+        title = tk.Label(main_frame, text=title_text, font=("Arial", 16, "bold"),
+                        bg='#2b2b2b', fg=title_color)
+        title.pack(pady=(0, 20))
+
+        # Frame per immagini (side by side)
+        images_frame = tk.Frame(main_frame, bg='#2b2b2b')
+        images_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 20))
+
+        # Immagine originale
+        left_frame = tk.Frame(images_frame, bg='#1e1e1e', relief=tk.RIDGE, bd=2)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 10))
+
+        left_label = tk.Label(left_frame, text="FOTO ORIGINALE", font=("Arial", 12, "bold"),
+                             bg='#1e1e1e', fg='#ffffff')
+        left_label.pack(pady=5)
+
+        left_img_label = tk.Label(left_frame, bg='#1e1e1e')
+        left_img_label.pack(expand=True, padx=5, pady=5)
+
+        # Immagine nuova
+        right_frame = tk.Frame(images_frame, bg='#1e1e1e', relief=tk.RIDGE, bd=2)
+        right_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        right_label = tk.Label(right_frame, text="FOTO VERIFICA", font=("Arial", 12, "bold"),
+                              bg='#1e1e1e', fg='#ffffff')
+        right_label.pack(pady=5)
+
+        right_img_label = tk.Label(right_frame, bg='#1e1e1e')
+        right_img_label.pack(expand=True, padx=5, pady=5)
+
+        # Carica e mostra immagini
+        def load_and_show_images():
+            # Carica immagine originale
+            img_orig = cv2.imread(str(img_originale))
+            if img_orig is not None:
+                # Disegna bbox su originale
+                for det in self.detections_list:
+                    if det['immagine'] == img_originale:
+                        bbox = det['bbox']
+                        cv2.rectangle(img_orig, (bbox['x1'], bbox['y1']),
+                                    (bbox['x2'], bbox['y2']), (0, 255, 0), 3)
+
+                # Ridimensiona
+                h, w = img_orig.shape[:2]
+                scale = min(400/w, 250/h)
+                new_w, new_h = int(w*scale), int(h*scale)
+                img_orig_resized = cv2.resize(img_orig, (new_w, new_h))
+                img_orig_rgb = cv2.cvtColor(img_orig_resized, cv2.COLOR_BGR2RGB)
+                img_orig_pil = Image.fromarray(img_orig_rgb)
+                img_orig_tk = ImageTk.PhotoImage(img_orig_pil)
+                left_img_label.configure(image=img_orig_tk)
+                left_img_label.image = img_orig_tk
+
+            # Carica immagine nuova
+            img_new = cv2.imread(str(img_nuova))
+            if img_new is not None:
+                # Disegna bbox: verde per originali, rosso per aggiunti
+                aggiunti_ids = set(id(obj) for obj in risultato['oggetti_aggiunti'])
+
+                for det in risultato['nuove_detection']:
+                    bbox = det['bbox']
+                    # Rosso se aggiunto, verde altrimenti
+                    color = (0, 0, 255) if id(det) in aggiunti_ids else (0, 255, 0)
+                    thickness = 4 if id(det) in aggiunti_ids else 2
+                    cv2.rectangle(img_new, (bbox['x1'], bbox['y1']),
+                                (bbox['x2'], bbox['y2']), color, thickness)
+
+                    # Aggiungi etichetta "NUOVO!" per oggetti aggiunti
+                    if id(det) in aggiunti_ids:
+                        cv2.putText(img_new, "NUOVO!", (bbox['x1'], bbox['y1']-10),
+                                  cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+
+                # Ridimensiona
+                h, w = img_new.shape[:2]
+                scale = min(400/w, 250/h)
+                new_w, new_h = int(w*scale), int(h*scale)
+                img_new_resized = cv2.resize(img_new, (new_w, new_h))
+                img_new_rgb = cv2.cvtColor(img_new_resized, cv2.COLOR_BGR2RGB)
+                img_new_pil = Image.fromarray(img_new_rgb)
+                img_new_tk = ImageTk.PhotoImage(img_new_pil)
+                right_img_label.configure(image=img_new_tk)
+                right_img_label.image = img_new_tk
+
+        load_and_show_images()
+
+        # Frame per dettagli
+        details_frame = tk.Frame(main_frame, bg='#1e1e1e', relief=tk.RIDGE, bd=2)
+        details_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Text widget per dettagli
+        details_text = tk.Text(details_frame, height=12, font=("Courier", 10),
+                              bg='#1e1e1e', fg='#ffffff', padx=15, pady=15)
+        details_text.pack(fill=tk.BOTH, expand=True)
+
+        # Compila dettagli
+        details_lines = [
+            "═══════════════════════════════════════════════════════════════════════",
+            "                       RIEPILOGO CONFRONTO                             ",
+            "═══════════════════════════════════════════════════════════════════════",
+            "",
+            f"Oggetti foto originale:  {risultato['totale_originali']}",
+            f"Oggetti foto verifica:   {risultato['totale_nuovi']}",
+            "",
+            "OGGETTI ORIGINALI PER CLASSE:",
+        ]
+
+        for classe, count in risultato['classi_originali'].items():
+            details_lines.append(f"  • {classe.upper()}: {count}")
+
+        details_lines.append("")
+        details_lines.append("OGGETTI RILEVATI NELLA VERIFICA:")
+
+        for classe, count in risultato['classi_nuove'].items():
+            details_lines.append(f"  • {classe.upper()}: {count}")
+
+        if risultato['oggetti_aggiunti']:
+            details_lines.append("")
+            details_lines.append("⚠️  OGGETTI AGGIUNTI ILLEGALMENTE:")
+            details_lines.append("")
+
+            for obj in risultato['oggetti_aggiunti']:
+                volume = obj['volume_stimato'].get('volume_m3', 0) or 0
+                details_lines.append(f"  • {obj['classe'].upper()} ({obj['sottotipo']})")
+                details_lines.append(f"    Volume: {volume:.3f} m³")
+                details_lines.append(f"    Qualità: {obj['qualita']['categoria'].upper().replace('_', ' ')}")
+                details_lines.append("")
+
+            details_lines.append(f"VOLUME TOTALE AGGIUNTO: {risultato['volume_aggiunto']:.3f} m³")
+        else:
+            details_lines.append("")
+            details_lines.append("✓ Nessun oggetto aggiunto rilevato")
+
+        if risultato['oggetti_rimossi']:
+            details_lines.append("")
+            details_lines.append("ℹ️  OGGETTI RIMOSSI (Ritiro completato):")
+            for obj in risultato['oggetti_rimossi']:
+                details_lines.append(f"  • {obj['classe'].upper()}: -{obj['quantita']}")
+
+        details_lines.append("")
+        details_lines.append("═══════════════════════════════════════════════════════════════════════")
+
+        details_text.insert(1.0, '\n'.join(details_lines))
+        details_text.configure(state='disabled')
+
+        # Bottone chiudi
+        close_btn = tk.Button(main_frame, text="Chiudi", command=result_window.destroy,
+                             bg='#0066cc', fg='white', font=("Arial", 11, "bold"),
+                             padx=30, pady=10, relief=tk.FLAT)
+        close_btn.pack(pady=(10, 0))
+
     def show(self, detections: List[Dict]):
         """Mostra la GUI con le detection"""
         if not detections:
@@ -1178,7 +1484,7 @@ def main():
                 show_gui = input("\nMostrare visualizzatore grafico? (s/n) [default: s]: ")
                 if show_gui.lower() != 'n':
                     print("\n[INFO] Apertura visualizzatore...")
-                    gui = FurnitureVisualizerGUI(capacita_camion_m3=4.0)
+                    gui = FurnitureVisualizerGUI(capacita_camion_m3=4.0, detector_system=system)
                     gui.show(all_detections)
             
         elif choice == '2':
