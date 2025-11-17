@@ -1,0 +1,15 @@
+{
+  "totale_oggetti": 14,
+  "per_classe": {
+    "couch": 9,
+    "chair": 2,
+    "bed": 2,
+    "refrigerator": 1
+  },
+  "per_qualita": {
+    "buono": 3,
+    "da_aggiustare": 5,
+    "da_buttare": 6
+  },
+  "volume_totale_m3": 18.021
+}

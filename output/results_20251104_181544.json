@@ -1,0 +1,422 @@
+[
+  {
+    "classe": "couch",
+    "sottotipo": "piccolo",
+    "confidence": 0.58,
+    "bbox": {
+      "x1": 365,
+      "y1": 149,
+      "x2": 548,
+      "y2": 331
+    },
+    "qualita": {
+      "categoria": "da_buttare",
+      "confidence": 0.5048805475234985,
+      "probabilita": {
+        "buono": 0.1793716847896576,
+        "da_aggiustare": 0.31574779748916626,
+        "da_buttare": 0.5048805475234985
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.02,
+      "dimensioni_cm": {
+        "lunghezza": 150,
+        "profondita": 80,
+        "altezza": 85
+      },
+      "sottotipo": "piccolo"
+    },
+    "immagine": "immagini_mobili\\mid_mix2.jpg"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "grande",
+    "confidence": 0.705,
+    "bbox": {
+      "x1": 62,
+      "y1": 244,
+      "x2": 1231,
+      "y2": 799
+    },
+    "qualita": {
+      "categoria": "da_buttare",
+      "confidence": 0.7264744639396667,
+      "probabilita": {
+        "buono": 0.07396260648965836,
+        "da_aggiustare": 0.1995628923177719,
+        "da_buttare": 0.7264744639396667
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.782,
+      "dimensioni_cm": {
+        "lunghezza": 220,
+        "profondita": 90,
+        "altezza": 90
+      },
+      "sottotipo": "grande"
+    },
+    "immagine": "immagini_mobili\\sofa_bad.jpg"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "grande",
+    "confidence": 0.778,
+    "bbox": {
+      "x1": 188,
+      "y1": 69,
+      "x2": 556,
+      "y2": 391
+    },
+    "qualita": {
+      "categoria": "da_buttare",
+      "confidence": 0.4421282112598419,
+      "probabilita": {
+        "buono": 0.23430579900741577,
+        "da_aggiustare": 0.3235659599304199,
+        "da_buttare": 0.4421282112598419
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.782,
+      "dimensioni_cm": {
+        "lunghezza": 220,
+        "profondita": 90,
+        "altezza": 90
+      },
+      "sottotipo": "grande"
+    },
+    "immagine": "immagini_mobili\\bad_sofa2.jpeg"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "piccolo",
+    "confidence": 0.549,
+    "bbox": {
+      "x1": 76,
+      "y1": 48,
+      "x2": 257,
+      "y2": 153
+    },
+    "qualita": {
+      "categoria": "da_aggiustare",
+      "confidence": 0.5015771389007568,
+      "probabilita": {
+        "buono": 0.1892886757850647,
+        "da_aggiustare": 0.5015771389007568,
+        "da_buttare": 0.30913418531417847
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.02,
+      "dimensioni_cm": {
+        "lunghezza": 150,
+        "profondita": 80,
+        "altezza": 85
+      },
+      "sottotipo": "piccolo"
+    },
+    "immagine": "immagini_mobili\\mid_mix.jpeg"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "piccolo",
+    "confidence": 0.472,
+    "bbox": {
+      "x1": 9,
+      "y1": 85,
+      "x2": 163,
+      "y2": 166
+    },
+    "qualita": {
+      "categoria": "da_buttare",
+      "confidence": 0.5998980402946472,
+      "probabilita": {
+        "buono": 0.15285789966583252,
+        "da_aggiustare": 0.24724408984184265,
+        "da_buttare": 0.5998980402946472
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.02,
+      "dimensioni_cm": {
+        "lunghezza": 150,
+        "profondita": 80,
+        "altezza": 85
+      },
+      "sottotipo": "piccolo"
+    },
+    "immagine": "immagini_mobili\\mid_sofa.jpeg"
+  },
+  {
+    "classe": "chair",
+    "sottotipo": "standard",
+    "confidence": 0.847,
+    "bbox": {
+      "x1": 95,
+      "y1": 39,
+      "x2": 177,
+      "y2": 154
+    },
+    "qualita": {
+      "categoria": "da_aggiustare",
+      "confidence": 0.5798026323318481,
+      "probabilita": {
+        "buono": 0.15536446869373322,
+        "da_aggiustare": 0.5798026323318481,
+        "da_buttare": 0.2648327946662903
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 0.203,
+      "dimensioni_cm": {
+        "lunghezza": 45,
+        "profondita": 50,
+        "altezza": 90
+      },
+      "sottotipo": "standard"
+    },
+    "immagine": "immagini_mobili\\mid_sofa2.jpeg"
+  },
+  {
+    "classe": "chair",
+    "sottotipo": "standard",
+    "confidence": 0.933,
+    "bbox": {
+      "x1": 242,
+      "y1": 46,
+      "x2": 298,
+      "y2": 163
+    },
+    "qualita": {
+      "categoria": "da_aggiustare",
+      "confidence": 0.4932669401168823,
+      "probabilita": {
+        "buono": 0.13706353306770325,
+        "da_aggiustare": 0.4932669401168823,
+        "da_buttare": 0.3696695566177368
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 0.203,
+      "dimensioni_cm": {
+        "lunghezza": 45,
+        "profondita": 50,
+        "altezza": 90
+      },
+      "sottotipo": "standard"
+    },
+    "immagine": "immagini_mobili\\mid_sofa2.jpeg"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "grande",
+    "confidence": 0.959,
+    "bbox": {
+      "x1": 49,
+      "y1": 230,
+      "x2": 972,
+      "y2": 803
+    },
+    "qualita": {
+      "categoria": "da_buttare",
+      "confidence": 0.5072298645973206,
+      "probabilita": {
+        "buono": 0.33326101303100586,
+        "da_aggiustare": 0.15950907766819,
+        "da_buttare": 0.5072298645973206
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.782,
+      "dimensioni_cm": {
+        "lunghezza": 220,
+        "profondita": 90,
+        "altezza": 90
+      },
+      "sottotipo": "grande"
+    },
+    "immagine": "immagini_mobili\\bad_sofa.png"
+  },
+  {
+    "classe": "bed",
+    "sottotipo": "matrimoniale",
+    "confidence": 0.92,
+    "bbox": {
+      "x1": 1,
+      "y1": 403,
+      "x2": 1135,
+      "y2": 834
+    },
+    "qualita": {
+      "categoria": "da_buttare",
+      "confidence": 0.39002060890197754,
+      "probabilita": {
+        "buono": 0.29391682147979736,
+        "da_aggiustare": 0.3160625100135803,
+        "da_buttare": 0.39002060890197754
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.6,
+      "dimensioni_cm": {
+        "lunghezza": 200,
+        "larghezza": 160,
+        "altezza": 50
+      },
+      "sottotipo": "matrimoniale"
+    },
+    "immagine": "immagini_mobili\\broke_bed.png"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "grande",
+    "confidence": 0.951,
+    "bbox": {
+      "x1": 61,
+      "y1": 207,
+      "x2": 1075,
+      "y2": 813
+    },
+    "qualita": {
+      "categoria": "buono",
+      "confidence": 0.4998353123664856,
+      "probabilita": {
+        "buono": 0.4998353123664856,
+        "da_aggiustare": 0.3031615614891052,
+        "da_buttare": 0.1970030665397644
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.782,
+      "dimensioni_cm": {
+        "lunghezza": 220,
+        "profondita": 90,
+        "altezza": 90
+      },
+      "sottotipo": "grande"
+    },
+    "immagine": "immagini_mobili\\good_sofa.png"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "grande",
+    "confidence": 0.947,
+    "bbox": {
+      "x1": 6,
+      "y1": 204,
+      "x2": 1106,
+      "y2": 774
+    },
+    "qualita": {
+      "categoria": "buono",
+      "confidence": 0.6879993081092834,
+      "probabilita": {
+        "buono": 0.6879993081092834,
+        "da_aggiustare": 0.1295536756515503,
+        "da_buttare": 0.18244698643684387
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.782,
+      "dimensioni_cm": {
+        "lunghezza": 220,
+        "profondita": 90,
+        "altezza": 90
+      },
+      "sottotipo": "grande"
+    },
+    "immagine": "immagini_mobili\\good_sofa2.png"
+  },
+  {
+    "classe": "bed",
+    "sottotipo": "matrimoniale",
+    "confidence": 0.901,
+    "bbox": {
+      "x1": 58,
+      "y1": 264,
+      "x2": 1093,
+      "y2": 810
+    },
+    "qualita": {
+      "categoria": "da_aggiustare",
+      "confidence": 0.5138333439826965,
+      "probabilita": {
+        "buono": 0.1948537677526474,
+        "da_aggiustare": 0.5138333439826965,
+        "da_buttare": 0.29131290316581726
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.6,
+      "dimensioni_cm": {
+        "lunghezza": 200,
+        "larghezza": 160,
+        "altezza": 50
+      },
+      "sottotipo": "matrimoniale"
+    },
+    "immagine": "immagini_mobili\\medium_bed.png"
+  },
+  {
+    "classe": "refrigerator",
+    "sottotipo": "standard",
+    "confidence": 0.917,
+    "bbox": {
+      "x1": 170,
+      "y1": 171,
+      "x2": 581,
+      "y2": 943
+    },
+    "qualita": {
+      "categoria": "da_aggiustare",
+      "confidence": 0.6111220717430115,
+      "probabilita": {
+        "buono": 0.11020577698945999,
+        "da_aggiustare": 0.6111220717430115,
+        "da_buttare": 0.27867215871810913
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 0.663,
+      "dimensioni_cm": {
+        "lunghezza": 60,
+        "profondita": 65,
+        "altezza": 170
+      },
+      "sottotipo": "standard"
+    },
+    "immagine": "immagini_mobili\\mid_fridge.png"
+  },
+  {
+    "classe": "couch",
+    "sottotipo": "grande",
+    "confidence": 0.586,
+    "bbox": {
+      "x1": 227,
+      "y1": 251,
+      "x2": 957,
+      "y2": 919
+    },
+    "qualita": {
+      "categoria": "buono",
+      "confidence": 0.7097179889678955,
+      "probabilita": {
+        "buono": 0.7097179889678955,
+        "da_aggiustare": 0.12440181523561478,
+        "da_buttare": 0.1658802032470703
+      }
+    },
+    "volume_stimato": {
+      "volume_m3": 1.782,
+      "dimensioni_cm": {
+        "lunghezza": 220,
+        "profondita": 90,
+        "altezza": 90
+      },
+      "sottotipo": "grande"
+    },
+    "immagine": "immagini_mobili\\mid_sofa3.png"
+  }
+]
