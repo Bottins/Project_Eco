@@ -1060,7 +1060,7 @@ class FurnitureDetectorSystem:
         
         return area_inter / area_union if area_union > 0 else 0.0
     
-    def filtra_box_sovrapposti(self, detections: List[Dict], iou_threshold: float = 0.5) -> List[Dict]:
+    def filtra_box_sovrapposti(self, detections: List[Dict], iou_threshold: float = 0.20) -> List[Dict]:
         """
         Rimuove detection sovrapposte, tenendo quella con area maggiore
         """
@@ -1399,7 +1399,7 @@ class FurnitureDetectorSystem:
                         'immagine': str(image_path)
                     }
                     detections.append(detection)
-                detections = self.filtra_box_sovrapposti(detections, iou_threshold=0.05)
+                detections = self.filtra_box_sovrapposti(detections, iou_threshold=0.85)
             return detections
             
         except Exception as e:
